@@ -7,14 +7,14 @@ namespace Completed
     //Player inherits from MovingObject, our base class for objects that can move, Enemy also inherits from this.
     public class Player : MovingObject
     {
-        public Vector2Int playerPosition = Vector2Int.zero;
+        public Vector2Int playerPosition = Vector2Int.zero; // Possibility change player startPosition
         public float restartLevelDelay = 1f; //Delay time in seconds to restart level.
         public int pointsPerFood = 10; //Number of points to add to player food points when picking up a food object.
         public int pointsPerSoda = 20; //Number of points to add to player food points when picking up a soda object.
         public int wallDamage = 1; //How much damage a player does to a wall when chopping it.
         public Text foodText; //UI Text to display current player food total.
         public Text foodCapText; //UI Text to display message about limit food.
-        public int maxFoodPoints = 0; // Possibility to set a food cap
+        public int maxFoodPoints = 100; // Possibility to set a food cap
         public AudioClip moveSound1; //1 of 2 Audio clips to play when player moves.
         public AudioClip moveSound2; //2 of 2 Audio clips to play when player moves.
         public AudioClip eatSound1; //1 of 2 Audio clips to play when player collects a food object.
@@ -22,6 +22,7 @@ namespace Completed
         public AudioClip drinkSound1; //1 of 2 Audio clips to play when player collects a soda object.
         public AudioClip drinkSound2; //2 of 2 Audio clips to play when player collects a soda object.
         public AudioClip gameOverSound; //Audio clip to play when player dies.
+        private Slider foodBar; // Image for health bar
 
         private Animator animator; //Used to store a reference to the Player's animator component.
         private int food; //Used to store player food points total during level.
@@ -37,6 +38,12 @@ namespace Completed
 
             //Get a component reference to the Player's animator component
             animator = GetComponent<Animator>();
+
+            //Get a component reference to the Player's health bar
+            foodBar = GetComponentInChildren<Slider>();
+
+            // Bind food limit to max Helth Bar value
+            foodBar.maxValue = maxFoodPoints;
             
             //Get the current food point total stored in GameManager.instance between levels.
             food = GameManager.instance.playerFoodPoints;
@@ -46,6 +53,10 @@ namespace Completed
             {
                 food = maxFoodPoints;
             }
+
+            // Update health bar
+            foodBar.value = food;
+
 
             //Set the foodText to reflect the current player food total.
             foodText.text = "Food: " + food;
@@ -141,6 +152,9 @@ namespace Completed
             //Every time player moves, subtract from food points total.
             food--;
 
+            // Update health bar
+            foodBar.value = food;
+
             //Update food text display to reflect current score.
             foodText.text = "Food: " + food;
 
@@ -199,17 +213,17 @@ namespace Completed
                 //Add pointsPerFood to the players current food total.
                 food += pointsPerFood;
 
-                // if game designer set the food cap
-                if (maxFoodPoints > 0)
-                {
-                    if (food > maxFoodPoints)
-                    {
-                        food = maxFoodPoints;
+                // Update health bar
+                foodBar.value = food;
 
-                        // Show message about limit food three seconds
-                        foodCapText.gameObject.SetActive(true);
-                        Invoke("CloseMessage", 3f);
-                    }
+                // if game designer set the food cap
+                if (food > maxFoodPoints)
+                {
+                    food = maxFoodPoints;
+
+                    // Show message about limit food three seconds
+                    foodCapText.gameObject.SetActive(true);
+                    Invoke("CloseMessage", 3f);
                 }
 
                 //Update foodText to represent current total and notify player that they gained points
@@ -228,17 +242,17 @@ namespace Completed
                 //Add pointsPerSoda to players food points total
                 food += pointsPerSoda;
 
-                // if game designer set the food cap
-                if (maxFoodPoints > 0)
-                {
-                    if (food > maxFoodPoints)
-                    {
-                        food = maxFoodPoints;
+                // Update health bar
+                foodBar.value = food;
 
-                        // Show message about limit food three seconds
-                        foodCapText.gameObject.SetActive(true);
-                        Invoke("CloseMessage", 3f);
-                    }
+                // if game designer set the food cap
+                if (food > maxFoodPoints)
+                {
+                    food = maxFoodPoints;
+
+                    // Show message about limit food three seconds
+                    foodCapText.gameObject.SetActive(true);
+                    Invoke("CloseMessage", 3f);
                 }
 
                 //Update foodText to represent current total and notify player that they gained points
@@ -275,6 +289,9 @@ namespace Completed
 
             //Subtract lost food points from the players total.
             food -= loss;
+
+            // Update health bar
+            foodBar.value = food;
 
             //Update the food display with the new total.
             foodText.text = "-" + loss + " Food: " + food;

@@ -13,6 +13,8 @@ namespace Completed
         public int pointsPerSoda = 20; //Number of points to add to player food points when picking up a soda object.
         public int wallDamage = 1; //How much damage a player does to a wall when chopping it.
         public Text foodText; //UI Text to display current player food total.
+        public Text foodCapText; //UI Text to display message about limit food.
+        public int maxFoodPoints = 0; // Possibility to set a food cap
         public AudioClip moveSound1; //1 of 2 Audio clips to play when player moves.
         public AudioClip moveSound2; //2 of 2 Audio clips to play when player moves.
         public AudioClip eatSound1; //1 of 2 Audio clips to play when player collects a food object.
@@ -35,9 +37,15 @@ namespace Completed
 
             //Get a component reference to the Player's animator component
             animator = GetComponent<Animator>();
-
+            
             //Get the current food point total stored in GameManager.instance between levels.
             food = GameManager.instance.playerFoodPoints;
+
+            // if game designer set the food cap
+            if (food > maxFoodPoints)
+            {
+                food = maxFoodPoints;
+            }
 
             //Set the foodText to reflect the current player food total.
             foodText.text = "Food: " + food;
@@ -191,6 +199,19 @@ namespace Completed
                 //Add pointsPerFood to the players current food total.
                 food += pointsPerFood;
 
+                // if game designer set the food cap
+                if (maxFoodPoints > 0)
+                {
+                    if (food > maxFoodPoints)
+                    {
+                        food = maxFoodPoints;
+
+                        // Show message about limit food three seconds
+                        foodCapText.gameObject.SetActive(true);
+                        Invoke("CloseMessage", 3f);
+                    }
+                }
+
                 //Update foodText to represent current total and notify player that they gained points
                 foodText.text = "+" + pointsPerFood + " Food: " + food;
 
@@ -207,6 +228,19 @@ namespace Completed
                 //Add pointsPerSoda to players food points total
                 food += pointsPerSoda;
 
+                // if game designer set the food cap
+                if (maxFoodPoints > 0)
+                {
+                    if (food > maxFoodPoints)
+                    {
+                        food = maxFoodPoints;
+
+                        // Show message about limit food three seconds
+                        foodCapText.gameObject.SetActive(true);
+                        Invoke("CloseMessage", 3f);
+                    }
+                }
+
                 //Update foodText to represent current total and notify player that they gained points
                 foodText.text = "+" + pointsPerSoda + " Food: " + food;
 
@@ -218,6 +252,10 @@ namespace Completed
             }
         }
 
+        private void CloseMessage()
+        {
+            foodCapText.gameObject.SetActive(false);
+        }
 
         //Restart reloads the scene when called.
         private void Restart()

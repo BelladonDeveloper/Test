@@ -7,6 +7,7 @@ namespace Completed
     //Player inherits from MovingObject, our base class for objects that can move, Enemy also inherits from this.
     public class Player : MovingObject
     {
+        public Vector2Int playerPosition = Vector2Int.zero;
         public float restartLevelDelay = 1f; //Delay time in seconds to restart level.
         public int pointsPerFood = 10; //Number of points to add to player food points when picking up a food object.
         public int pointsPerSoda = 20; //Number of points to add to player food points when picking up a soda object.
@@ -29,6 +30,9 @@ namespace Completed
         //Start overrides the Start function of MovingObject
         protected override void Start()
         {
+            // Game designer can change player position only x and y, not z
+            transform.position = new Vector3(playerPosition.x, playerPosition.y, 0);
+
             //Get a component reference to the Player's animator component
             animator = GetComponent<Animator>();
 
